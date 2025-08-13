@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8-general-ci">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دفتر التعافي</title>
+    <meta name="theme-color" content="#212529"/>
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Google Fonts (Tajawal for better Arabic support) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Cal-Heatmap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.2/dist/cal-heatmap.css">
+
+    <style>
+        /* Meditation Navigation Styles */
+        .meditation-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding: 0 1rem;
+        }
+        .meditation-text {
+            flex: 1;
+            margin: 0 1rem;
+            min-height: 3rem;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .meditation-text.fade-out {
+            opacity: 0;
+        }
+        .meditation-nav-btn {
+            color: #6c757d;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+        .meditation-nav-btn:hover {
+            color: #0d6efd;
+            opacity: 1;
+        }
+        .dark-theme .meditation-nav-btn {
+            color: #adb5bd;
+        }
+        .dark-theme .meditation-nav-btn:hover {
+            color: #ffffff;
+        }
+
+        /* Progress Circle Styles */
+        .progress-circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        .progress-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        .progress-circle-bg {
+            fill: none;
+            stroke: #e9ecef;
+            stroke-width: 8;
+        }
+        .progress-circle-value {
+            fill: none;
+            stroke: #198754;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-out;
+        }
+        .progress-circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #198754;
+        }
+        
+        /* Custom Button Styles */
+        .btn-soft {
+            background-color: #e8f0fe;
+            border-color: #e8f0fe;
+            color: #3b71ca;
+            transition: all 0.3s ease;
+        }
+        .btn-soft:hover {
+            background-color: #d8e6fd;
+            border-color: #d8e6fd;
+            color: #2c59c3;
+        }
+        .dark-theme .btn-soft {
+            background-color: #2c3544;
+            border-color: #2c3544;
+            color: #8bb9fe;
+        }
+        .dark-theme .btn-soft:hover {
+            background-color: #344155;
+            border-color: #344155;
+            color: #a8ccfe;
+        }
+        .btn-success {
+            background-color: #14a44d;
+            border-color: #14a44d;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #119544;
+            border-color: #119544;
+        }
+        
+        /* General Styling with better font support */
+        body {
+            font-family: 'Tajawal', sans-serif !important; /* Force font on all elements */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Explicitly set font for elements that might not inherit it */
+        h1, h2, h3, h4, h5, h6, button, input, textarea, select, .btn, .modal-title, .nav-link, .navbar-brand {
+             font-family: 'Tajawal', sans-serif !important;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        .dark-theme .bg-light {
+            background-color: #343a40 !important;
+        }
+        .dark-theme .navbar {
+            color: #f8f9fa;
+        }
+        .dark-theme .navbar-brand,
+        .dark-theme .nav-link {
+            color: #f8f9fa !important;
+        }
+        .dark-theme .navbar-toggler-icon {
+            filter: invert(1);
+        }
+        .dark-theme .text-dark {
+            color: #f8f9fa !important;
+        }
+        .dark-theme .modal-content, .dark-theme .card {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+        .dark-theme .btn-close {
+            filter: invert(1);
+        }
+        .dark-theme .form-control, .dark-theme .form-select {
+            background-color: #495057;
+            color: #f8f9fa;
+            border-color: #6c757d;
+        }
+        .dark-theme .form-control::placeholder {
+            color: #ced4da;
+        }
+        .dark-theme .list-group-item {
+            background-color: #343a40;
+            border-color: #495057;
+        }
+
+        /* App Structure */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .navbar {
+            padding: 0.8rem 1rem;
+        }
+        .main-container {
+            padding-top: 80px; /* Space for navbar */
+            padding-bottom: 80px; /* Space for emergency button */
+        }
+
+        /* Emergency Button */
+        .emergency-btn-container {
+            position: fixed;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            text-align: center;
+        }
+        .emergency-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            transition: all 0.2s ease-in-out;
+        }
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.5);
+        }
+
+        /* Scrollable Heatmap Container */
+        .heatmap-scroll-container {
+            overflow-x: auto;
+            padding: 1rem 0;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        #cal-heatmap {
+            min-width: 700px; /* Ensure heatmap has enough space to render months */
+        }
+        .ch-month-label {
+            font-weight: bold;
+        }
+
+        /* Inventory Styling */
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .question-card {
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body class="light-theme">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-light shadow-sm fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#" data-page="home"><i class="bi bi-journal-check me-2"></i>دفتر التعافي</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#" data-page="home"><i class="bi bi-house-door me-1"></i>الرئيسية</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-page="search"><i class="bi bi-search me-1"></i>بحث</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-page="settings"><i class="bi bi-gear me-1"></i>الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="text-center p-4 mb-4 bg-light rounded-3 shadow-sm">
+                <h5 class="fw-bold">تأمل اليوم</h5>
+                <div class="meditation-container">
+                    <button class="btn btn-link meditation-nav-btn prev-meditation" title="التأمل السابق">
+                        <i class="bi bi-chevron-right fs-3"></i>
+                    </button>
+                    <p id="daily-meditation" class="lead meditation-text">يتم تحميل التأمل...</p>
+                    <button class="btn btn-link meditation-nav-btn next-meditation" title="التأمل التالي">
+                        <i class="bi bi-chevron-left fs-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <h5 class="fw-bold">حالة إكمال الجرود</h5>
+                <div id="completion-status" class="d-flex justify-content-center gap-3">
+                    <!-- Status will be injected here -->
+                </div>
+            </div>
+
+            <div id="cal-heatmap-container" class="bg-light p-3 rounded-3 shadow-sm">
+                <h5 class="text-center fw-bold mb-3">خريطة الالتزام السنوية</h5>
+                <div class="heatmap-scroll-container">
+                    <div id="cal-heatmap"></div>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+
+            <div class="text-center">
+                <h5 class="fw-bold">الوصول السريع للجرود</h5>
+                <div id="inventory-buttons" class="d-grid gap-2 col-10 mx-auto mt-3">
+                    <!-- Buttons will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Page -->
+        <div id="inventory" class="page">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 id="inventory-title" class="fw-bold"></h2>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" id="copy-inventory-btn"><i class="bi bi-clipboard me-1"></i>نسخ الجرد</button>
+                    <button class="btn btn-sm btn-outline-secondary" id="manage-questions-btn"><i class="bi bi-pencil-square me-1"></i>تخصيص الأسئلة</button>
+                </div>
+            </div>
+            <div id="inventory-questions" class="d-flex flex-column gap-3"></div>
+        </div>
+
+        <!-- Search Page -->
+        <div id="search" class="page">
+            <h2 class="fw-bold mb-3">البحث في الجرود السابقة</h2>
+            <div class="input-group mb-3">
+                <input type="text" id="search-input" class="form-control" placeholder="اكتب كلمة للبحث...">
+                <button id="search-btn" class="btn btn-primary"><i class="bi bi-search"></i> بحث</button>
+            </div>
+            <div id="search-results"></div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="page">
+            <h2 class="fw-bold mb-4">الإعدادات</h2>
+            
+            <!-- General Settings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold">إعدادات عامة</div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="theme-select" class="form-label">المظهر</label>
+                        <select id="theme-select" class="form-select">
+                            <option value="light">فاتح</option>
+                            <option value="dark">داكن</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Font Settings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold">إعدادات الخط</div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="general-font-size-slider" class="form-label">حجم الخط العام: <span id="general-font-size-value">16</span>px</label>
+                        <input type="range" class="form-range" id="general-font-size-slider" min="12" max="22" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="meditation-font-size-slider" class="form-label">حجم خط التأمل: <span id="meditation-font-size-value">1.25</span>rem</label>
+                        <input type="range" class="form-range" id="meditation-font-size-slider" min="0.8" max="2.0" step="0.05">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Meditations Settings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold">تخصيص التأملات اليومية</div>
+                <div class="card-body">
+                    <div id="meditations-list"></div>
+                    <div class="input-group mt-3">
+                        <input type="text" id="new-meditation-input" class="form-control" placeholder="أضف تأملاً جديداً هنا...">
+                        <button id="add-meditation-btn" class="btn btn-success"><i class="bi bi-plus"></i> إضافة</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Mode Settings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold">تخصيص وضع الطوارئ</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="emergency-prayer" class="form-label">دعاء أو صلاة</label>
+                        <textarea id="emergency-prayer" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">قائمة زملاء الدعم</label>
+                        <div id="emergency-contacts"></div>
+                        <button id="add-contact-btn" class="btn btn-sm btn-success mt-2"><i class="bi bi-plus-circle"></i> إضافة جهة اتصال</button>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">روابط اجتماعات الزمالة</label>
+                        <div id="emergency-meetings-list"></div>
+                        <button id="add-meeting-btn" class="btn btn-sm btn-success mt-2"><i class="bi bi-plus-circle"></i> إضافة رابط اجتماع</button>
+                    </div>
+                    <button id="save-emergency-settings" class="btn btn-primary">حفظ إعدادات الطوارئ</button>
+                </div>
+            </div>
+            
+            <!-- Inventory Management -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header fw-bold">إدارة أنواع الجرود</div>
+                <div class="card-body">
+                    <ul id="inventory-types-list" class="list-group mb-3"></ul>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addInventoryTypeModal"><i class="bi bi-plus-circle me-1"></i>إضافة نوع جرد جديد</button>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold">إدارة البيانات</div>
+                <div class="card-body">
+                    <p class="text-muted small">جميع بياناتك محفوظة على هذا الجهاز فقط.</p>
+                    <button id="export-data-btn" class="btn btn-info me-2"><i class="bi bi-download me-1"></i>تصدير نسخة احتياطية</button>
+                    <button id="import-data-btn" class="btn btn-warning"><i class="bi bi-upload me-1"></i>استيراد نسخة احتياطية</button>
+                    <input type="file" id="import-file-input" class="d-none" accept=".json">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Button Container -->
+    <div class="emergency-btn-container">
+        <button class="emergency-btn" data-bs-toggle="modal" data-bs-target="#emergencyModal">
+            <i class="bi bi-shield-fill-exclamation me-2"></i>وضع الطوارئ
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <!-- Emergency Modal -->
+    <div class="modal fade" id="emergencyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-shield-fill-exclamation me-2 text-danger"></i>وضع الطوارئ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="emergency-content-prayer" class="mb-4"></div>
+                    <div id="emergency-content-contacts" class="mb-4"></div>
+                    <div id="emergency-content-meetings"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Inventory Type Modal -->
+    <div class="modal fade" id="addInventoryTypeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة نوع جرد جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new-inventory-name" class="form-label">اسم الجرد</label>
+                        <input type="text" class="form-control" id="new-inventory-name" placeholder="مثال: جرد الخوف">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" id="save-new-inventory-type" class="btn btn-primary">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Manage Questions Modal -->
+    <div class="modal fade" id="manageQuestionsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تخصيص أسئلة <span id="manage-questions-title"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="questions-editor-list"></div>
+                    <div class="input-group mt-3">
+                        <input type="text" id="new-question-input" class="form-control" placeholder="أضف سؤالاً جديداً هنا...">
+                        <button id="add-new-question-btn" class="btn btn-success"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">تم</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.2/dist/cal-heatmap.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // --- DATA MODEL & INITIALIZATION ---
+
+        const DB_KEY = 'recoveryJournalData';
+
+        const defaultData = {
+            settings: {
+                theme: 'light',
+                fontSize: {
+                    general: 16,
+                    meditation: 1.25
+                },
+                meditations: [
+                    "التركيز على يوم واحد فقط في كل مرة هو مفتاح التعافي المستمر.",
+                    "الصدق مع النفس ومع الآخرين هو أساس الحرية.",
+                    "الامتنان يحول ما لدينا إلى ما يكفي.",
+                    "الشجاعة ليست غياب الخوف، بل هي التصرف على الرغم من وجوده.",
+                    "الاستعداد للتغيير هو أول خطوة نحو حياة جديدة."
+                ],
+                emergency: {
+                    prayer: 'يا الله، امنحني السكينة لأتقبل الأشياء التي لا أستطيع تغييرها، والشجاعة لتغيير الأشياء التي أستطيع تغييرها، والحكمة لمعرفة الفرق.',
+                    contacts: [{ name: 'زميل دعم', number: '123456789' }],
+                    meetings: [{ name: 'اجتماعات SA الدولية', url: 'https://saa-recovery.org/meetings/' }]
+                }
+            },
+            inventoryTypes: [
+                { id: 'morning', name: 'الجرد الصباحي', questions: [
+                    { id: 1, text: 'ما هي أهدافي لليوم؟' },
+                    { id: 2, text: 'ما هي مخاوفي أو قلقي اليوم؟' },
+                    { id: 3, text: 'لمن أو لماذا أنا ممتن اليوم؟' }
+                ]},
+                { id: 'evening', name: 'الجرد المسائي', questions: [
+                    { id: 1, text: 'هل شعرت بالاستياء أو الأنانية أو عدم الأمانة أو الخوف اليوم؟' },
+                    { id: 2, text: 'هل أدين باعتذار لأي شخص؟' },
+                    { id: 3, text: 'ما الذي فعلته بشكل جيد اليوم؟' }
+                ]},
+                { id: 'step10', name: 'جرد الخطوة 10', questions: [
+                    { id: 1, text: 'متى كنت مخطئًا اليوم؟' },
+                    { id: 2, text: 'ما هي الإجراءات التصحيحية التي اتخذتها؟' }
+                ]},
+                { id: 'gratitude', name: 'قائمة الامتنان', questions: [{ id: 1, text: 'ما هي الأشياء التي أمتن لها اليوم؟' }] }
+            ],
+            inventoryEntries: {}
+        };
+        
+        let data = {};
+        let cal = new CalHeatmap();
+        let manageQuestionsModalInstance = null;
+        let addInventoryTypeModalInstance = null;
+
+        function loadData() {
+            const storedData = localStorage.getItem(DB_KEY);
+            if (storedData) {
+                data = JSON.parse(storedData);
+                // --- Data Migration for older versions ---
+                if (!data.settings.fontSize) data.settings.fontSize = defaultData.settings.fontSize;
+                if (!data.settings.emergency) data.settings.emergency = defaultData.settings.emergency;
+                if (!data.settings.meditations) data.settings.meditations = defaultData.settings.meditations;
+                if (data.settings.emergency.meetingsLink && !data.settings.emergency.meetings) {
+                    data.settings.emergency.meetings = [{ name: 'رابط اجتماعات قديم', url: data.settings.emergency.meetingsLink }];
+                    delete data.settings.emergency.meetingsLink;
+                }
+                if (!data.inventoryTypes) data.inventoryTypes = defaultData.inventoryTypes;
+            } else {
+                data = JSON.parse(JSON.stringify(defaultData)); // Deep copy
+            }
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        function getTodayDateString() {
+            const today = new Date();
+            if (today.getHours() < 2) {
+                today.setDate(today.getDate() - 1);
+            }
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function initializeApp() {
+            loadData();
+            applyTheme(data.settings.theme);
+            applyFontSizes(data.settings.fontSize);
+            
+            manageQuestionsModalInstance = new bootstrap.Modal(document.getElementById('manageQuestionsModal'));
+            addInventoryTypeModalInstance = new bootstrap.Modal(document.getElementById('addInventoryTypeModal'));
+
+            const todayStr = getTodayDateString();
+            if (!data.inventoryEntries[todayStr]) {
+                data.inventoryEntries[todayStr] = {};
+                saveData();
+            }
+
+            renderHomePage();
+            renderSettingsPage();
+            setupEventListeners();
+            showPage('home');
+        }
+
+        // --- PAGE RENDERING ---
+
+        function showPage(pageId) {
+            $('.page').removeClass('active');
+            $('#' + pageId).addClass('active');
+            $('.navbar-collapse').collapse('hide');
+        }
+
+        function renderHomePage() {
+            // Daily Meditation with Navigation
+            const meditations = data.settings.meditations;
+            if (!window.currentMeditationIndex) {
+                window.currentMeditationIndex = Math.floor(Math.random() * meditations.length);
+            }
+            
+            function showMeditation(index) {
+                const $meditation = $('#daily-meditation');
+                $meditation.addClass('fade-out');
+                
+                setTimeout(() => {
+                    if (meditations && meditations.length > 0) {
+                        window.currentMeditationIndex = (index + meditations.length) % meditations.length;
+                        $meditation.text(meditations[window.currentMeditationIndex]);
+                    } else {
+                        $meditation.text('أضف تأملاتك الخاصة من الإعدادات.');
+                    }
+                    $meditation.removeClass('fade-out');
+                }, 300);
+            }
+            
+            showMeditation(window.currentMeditationIndex);
+            
+            // إضافة مستمعي الأحداث لأزرار التنقل
+            $('.prev-meditation').off('click').on('click', function() {
+                showMeditation(window.currentMeditationIndex - 1);
+            });
+            
+            $('.next-meditation').off('click').on('click', function() {
+                showMeditation(window.currentMeditationIndex + 1);
+            });
+            
+            // حساب نسبة إكمال الجرود اليومية
+            const statusContainer = $('#completion-status').empty();
+            const currentDate = getTodayDateString();
+            const totalInventories = data.inventoryTypes.length;
+            let completedCount = 0;
+
+            if (data.inventoryEntries[currentDate]) {
+                data.inventoryTypes.forEach(type => {
+                    const entry = data.inventoryEntries[currentDate][type.id];
+                    if (entry) {
+                        // اعتبار الجرد مكتمل إذا تم وضع علامة الإكمال أو إذا كان هناك إجابات
+                        if (entry.completed || Object.values(entry.answers || {}).some(answer => answer && answer.trim().length > 0)) {
+                            completedCount++;
+                        }
+                    }
+                });
+            }
+
+            const percentage = Math.round((completedCount / totalInventories) * 100);
+            const circumference = 2 * Math.PI * 54; // محيط الدائرة (r=54)
+            const offset = circumference - (percentage / 100) * circumference;
+
+            statusContainer.append(`
+                <div class="progress-circle-container">
+                    <div class="progress-circle">
+                        <svg viewBox="0 0 120 120" style="width: 100%; height: 100%;">
+                            <circle class="progress-circle-bg" cx="60" cy="60" r="54"/>
+                            <circle class="progress-circle-value" cx="60" cy="60" r="54" 
+                                    style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset}"/>
+                        </svg>
+                        <div class="progress-circle-text">${percentage}%</div>
+                    </div>
+                    <div class="mt-2">نسبة إكمال جرود اليوم</div>
+                </div>
+            `);
+
+            // Heatmap
+            const heatmapData = Object.keys(data.inventoryEntries)
+                .filter(date => Object.values(data.inventoryEntries[date]).some(inv => inv.completed))
+                .map(date => ({ date: date, value: 1 }));
+
+            $('#cal-heatmap').empty();
+            cal.paint({
+                data: { source: heatmapData, x: 'date', y: 'value' },
+                date: { start: new Date(new Date().getFullYear(), 0, 1) },
+                range: 12,
+                scale: { color: { scheme: 'Green', type: 'threshold', domain: [1, 2, 3, 4] } },
+                domain: { type: 'month' },
+                subDomain: { type: 'day', radius: 2 },
+                itemSelector: '#cal-heatmap'
+            });
+
+            // Inventory Buttons
+            const buttonsContainer = $('#inventory-buttons').empty();
+            const todayEntries = data.inventoryEntries[currentDate] || {};
+            
+            data.inventoryTypes.forEach(type => {
+                const entry = todayEntries[type.id];
+                const isCompleted = entry && (entry.completed || Object.values(entry.answers || {}).some(a => a && a.trim().length > 0));
+                
+                buttonsContainer.append(`
+                    <button class="btn ${isCompleted ? 'btn-success' : 'btn-soft'} btn-lg" 
+                            data-inventory-id="${type.id}">
+                        ${type.name}
+                        ${isCompleted ? '<i class="bi bi-check-circle-fill ms-2"></i>' : ''}
+                    </button>
+                `);
+            });
+        }
+
+        function renderInventoryPage(inventoryId) {
+            const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+            if (!inventoryType) return;
+
+            const todayStr = getTodayDateString();
+            if (!data.inventoryEntries[todayStr]) data.inventoryEntries[todayStr] = {};
+            if (!data.inventoryEntries[todayStr][inventoryId]) data.inventoryEntries[todayStr][inventoryId] = { answers: {}, completed: false };
+            
+            const currentEntry = data.inventoryEntries[todayStr][inventoryId];
+
+            $('#inventory-title').text(inventoryType.name);
+            $('#manage-questions-btn').data('inventory-id', inventoryId).show();
+            const questionsContainer = $('#inventory-questions').empty();
+
+            inventoryType.questions.forEach(q => {
+                questionsContainer.append(`
+                    <div class="card shadow-sm question-card">
+                        <div class="card-body">
+                            <label for="q-${q.id}" class="form-label fw-bold">${q.text}</label>
+                            <textarea id="q-${q.id}" class="form-control question-answer" data-inventory-id="${inventoryId}" data-question-id="${q.id}">${currentEntry.answers[q.id] || ''}</textarea>
+                        </div>
+                    </div>
+                `);
+            });
+            
+            const isCompleted = currentEntry.completed;
+            questionsContainer.append(`
+                <button id="complete-inventory-btn" class="btn ${isCompleted ? 'btn-success' : 'btn-outline-success'} mt-3" data-inventory-id="${inventoryId}">
+                    <i class="bi ${isCompleted ? 'bi-check-all' : 'bi-check'} me-1"></i>
+                    ${isCompleted ? 'تم الإكمال' : 'تحديد كمكتمل'}
+                </button>
+            `);
+
+            showPage('inventory');
+        }
+        
+        function renderSettingsPage() {
+            $('#theme-select').val(data.settings.theme);
+
+            // Font sizes
+            $('#general-font-size-slider').val(data.settings.fontSize.general);
+            $('#general-font-size-value').text(data.settings.fontSize.general);
+            $('#meditation-font-size-slider').val(data.settings.fontSize.meditation);
+            $('#meditation-font-size-value').text(data.settings.fontSize.meditation);
+
+            $('#emergency-prayer').val(data.settings.emergency.prayer);
+            
+            renderMeditationsEditor();
+            renderEmergencyContactsEditor();
+            renderMeetingsEditor();
+            renderInventoryTypesEditor();
+        }
+        
+        function renderMeditationsEditor() {
+            const list = $('#meditations-list').empty();
+            data.settings.meditations.forEach((meditation, index) => {
+                list.append(`
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control meditation-input" value="${meditation}" data-index="${index}">
+                        <button class="btn btn-outline-danger remove-meditation-btn" data-index="${index}"><i class="bi bi-trash"></i></button>
+                    </div>
+                `);
+            });
+        }
+        
+        function renderEmergencyContactsEditor() {
+            const contactsContainer = $('#emergency-contacts').empty();
+            data.settings.emergency.contacts.forEach((contact, index) => {
+                contactsContainer.append(`
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control contact-name" placeholder="الاسم" value="${contact.name}" data-index="${index}">
+                        <input type="tel" class="form-control contact-number" placeholder="الرقم" value="${contact.number}" data-index="${index}">
+                        <button class="btn btn-outline-danger remove-contact-btn" data-index="${index}"><i class="bi bi-trash"></i></button>
+                    </div>
+                `);
+            });
+        }
+        
+        function renderMeetingsEditor() {
+            const meetingsContainer = $('#emergency-meetings-list').empty();
+            data.settings.emergency.meetings.forEach((meeting, index) => {
+                meetingsContainer.append(`
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control meeting-name" placeholder="اسم الاجتماع" value="${meeting.name}" data-index="${index}">
+                        <input type="url" class="form-control meeting-url" placeholder="رابط الاجتماع" value="${meeting.url}" data-index="${index}">
+                        <button class="btn btn-outline-danger remove-meeting-btn" data-index="${index}"><i class="bi bi-trash"></i></button>
+                    </div>
+                `);
+            });
+        }
+        
+        function renderInventoryTypesEditor() {
+            const list = $('#inventory-types-list').empty();
+            data.inventoryTypes.forEach(type => {
+                list.append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <input type="text" class="form-control form-control-sm inventory-type-name-input me-2" value="${type.name}" data-id="${type.id}" style="max-width: 250px; display: inline-block;">
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger delete-inventory-type-btn" data-id="${type.id}"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </li>
+                `);
+            });
+        }
+        
+        function renderQuestionsEditor(inventoryId) {
+            const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+            if (!inventoryType) return;
+            
+            $('#manage-questions-title').text(inventoryType.name);
+            $('#add-new-question-btn').data('inventory-id', inventoryId);
+            const editorList = $('#questions-editor-list').empty();
+            
+            inventoryType.questions.forEach(q => {
+                editorList.append(`
+                     <div class="input-group mb-2">
+                        <input type="text" class="form-control question-editor-input" value="${q.text}" data-question-id="${q.id}">
+                        <button class="btn btn-outline-danger delete-question-btn" data-question-id="${q.id}"><i class="bi bi-trash"></i></button>
+                    </div>
+                `);
+            });
+            
+            manageQuestionsModalInstance.show();
+        }
+
+        // --- EVENT LISTENERS ---
+
+        function setupEventListeners() {
+            // Navigation
+            $(document).on('click', '.nav-link, .navbar-brand', (e) => { e.preventDefault(); showPage($(e.currentTarget).data('page')); });
+            $(document).on('click', '#inventory-buttons .btn', (e) => renderInventoryPage($(e.currentTarget).data('inventory-id')));
+
+            // Auto-save inventory
+            $(document).on('input', '.question-answer', function() {
+                const inventoryId = $(this).data('inventory-id');
+                const questionId = $(this).data('question-id');
+                data.inventoryEntries[getTodayDateString()][inventoryId].answers[questionId] = $(this).val();
+                saveData();
+            });
+
+            // Mark as complete
+            $(document).on('click', '#complete-inventory-btn', function() {
+                const inventoryId = $(this).data('inventory-id');
+                const entry = data.inventoryEntries[getTodayDateString()][inventoryId];
+                entry.completed = !entry.completed;
+                saveData();
+                renderInventoryPage(inventoryId);
+                renderHomePage();
+            });
+
+            // Copy inventory to clipboard
+            $(document).on('click', '#copy-inventory-btn', function() {
+                const inventoryId = $('#manage-questions-btn').data('inventory-id');
+                const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+                const entry = data.inventoryEntries[getTodayDateString()][inventoryId];
+                if (!inventoryType || !entry) return;
+
+                let textToCopy = `${inventoryType.name} - ${getTodayDateString()}\n\n`;
+
+                inventoryType.questions.forEach(q => {
+                    const answer = entry.answers[q.id] || 'لم تتم الإجابة.';
+                    textToCopy += `س: ${q.text}\nج: ${answer}\n\n`;
+                });
+
+                navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                    const originalText = $(this).html();
+                    $(this).html('<i class="bi bi-check-lg me-1"></i>تم النسخ!');
+                    setTimeout(() => $(this).html(originalText), 2000);
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                    alert('لم يتمكن من نسخ النص.');
+                });
+            });
+
+            // --- Settings Listeners ---
+            $('#theme-select').on('change', function() {
+                const theme = $(this).val();
+                data.settings.theme = theme;
+                applyTheme(theme);
+                saveData();
+            });
+
+            $('#general-font-size-slider').on('input', function() {
+                const newSize = $(this).val();
+                $('#general-font-size-value').text(newSize);
+                data.settings.fontSize.general = parseFloat(newSize);
+                applyFontSizes(data.settings.fontSize);
+                saveData();
+            });
+
+            $('#meditation-font-size-slider').on('input', function() {
+                const newSize = $(this).val();
+                $('#meditation-font-size-value').text(newSize);
+                data.settings.fontSize.meditation = parseFloat(newSize);
+                applyFontSizes(data.settings.fontSize);
+                saveData();
+            });
+            
+            // Meditations
+            $('#add-meditation-btn').on('click', function() {
+                const text = $('#new-meditation-input').val().trim();
+                if (text) {
+                    data.settings.meditations.push(text);
+                    saveData();
+                    renderMeditationsEditor();
+                    $('#new-meditation-input').val('');
+                }
+            });
+            $(document).on('input', '.meditation-input', function() {
+                const index = $(this).data('index');
+                data.settings.meditations[index] = $(this).val();
+                saveData();
+            });
+            $(document).on('click', '.remove-meditation-btn', function() {
+                const index = $(this).data('index');
+                data.settings.meditations.splice(index, 1);
+                saveData();
+                renderMeditationsEditor();
+            });
+
+            // Emergency Settings
+            $('#save-emergency-settings').on('click', function() {
+                data.settings.emergency.prayer = $('#emergency-prayer').val();
+                saveData(); // Other parts are saved on input
+                alert('تم حفظ إعدادات الطوارئ');
+            });
+
+            // Contacts
+            $('#add-contact-btn').on('click', () => { data.settings.emergency.contacts.push({ name: '', number: '' }); renderEmergencyContactsEditor(); });
+            $(document).on('click', '.remove-contact-btn', function() { data.settings.emergency.contacts.splice($(this).data('index'), 1); saveData(); renderEmergencyContactsEditor(); });
+            $(document).on('input', '.contact-name, .contact-number', function() {
+                const index = $(this).data('index');
+                const field = $(this).hasClass('contact-name') ? 'name' : 'number';
+                data.settings.emergency.contacts[index][field] = $(this).val();
+                saveData();
+            });
+            
+            // Meetings
+            $('#add-meeting-btn').on('click', () => { data.settings.emergency.meetings.push({ name: '', url: '' }); renderMeetingsEditor(); });
+            $(document).on('click', '.remove-meeting-btn', function() { data.settings.emergency.meetings.splice($(this).data('index'), 1); saveData(); renderMeetingsEditor(); });
+            $(document).on('input', '.meeting-name, .meeting-url', function() {
+                const index = $(this).data('index');
+                const field = $(this).hasClass('meeting-name') ? 'name' : 'url';
+                data.settings.emergency.meetings[index][field] = $(this).val();
+                saveData();
+            });
+
+            // Data Export/Import
+            $('#export-data-btn').on('click', function() {
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `recovery-journal-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            $('#import-data-btn').on('click', () => $('#import-file-input').click());
+            $('#import-file-input').on('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (confirm('هل أنت متأكد أنك تريد استبدال جميع بياناتك الحالية بالبيانات المستوردة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                            data = importedData;
+                            saveData();
+                            initializeApp();
+                            alert('تم استيراد البيانات بنجاح.');
+                        }
+                    } catch (err) { alert('خطأ في الملف. يرجى التأكد من أنه ملف نسخة احتياطية صالح.'); }
+                };
+                reader.readAsText(file);
+                $(this).val('');
+            });
+            
+            // Inventory Management
+            $('#save-new-inventory-type').on('click', function() {
+                const name = $('#new-inventory-name').val().trim();
+                if (name) {
+                    const newId = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+                    data.inventoryTypes.push({ id: newId, name: name, questions: [] });
+                    saveData();
+                    renderSettingsPage();
+                    renderHomePage();
+                    addInventoryTypeModalInstance.hide();
+                    $('#new-inventory-name').val('');
+                }
+            });
+            $(document).on('click', '.delete-inventory-type-btn', function() {
+                const idToDelete = $(this).data('id');
+                if (confirm('هل أنت متأكد من حذف هذا النوع من الجرد؟ سيتم حذف جميع الإدخالات المرتبطة به أيضًا.')) {
+                    data.inventoryTypes = data.inventoryTypes.filter(t => t.id !== idToDelete);
+                    for (const date in data.inventoryEntries) {
+                        if (data.inventoryEntries[date][idToDelete]) {
+                            delete data.inventoryEntries[date][idToDelete];
+                        }
+                    }
+                    saveData();
+                    renderSettingsPage();
+                    renderHomePage();
+                }
+            });
+
+            // تعديل اسم الجرد مباشرة
+            $(document).on('input', '.inventory-type-name-input', function() {
+                const id = $(this).data('id');
+                const newName = $(this).val();
+                const type = data.inventoryTypes.find(t => t.id === id);
+                if (type) {
+                    type.name = newName;
+                    saveData();
+                    renderHomePage();
+                }
+            });
+            
+            // Question Management
+            $('#manage-questions-btn').on('click', function() { renderQuestionsEditor($(this).data('inventory-id')); });
+            $('#add-new-question-btn').on('click', function() {
+                const inventoryId = $(this).data('inventory-id');
+                const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+                const newQuestionText = $('#new-question-input').val().trim();
+                if (newQuestionText && inventoryType) {
+                    inventoryType.questions.push({ id: Date.now(), text: newQuestionText });
+                    saveData();
+                    $('#new-question-input').val('');
+                    renderQuestionsEditor(inventoryId);
+                }
+            });
+            $(document).on('input', '.question-editor-input', function() {
+                const inventoryId = $('#add-new-question-btn').data('inventory-id');
+                const questionId = $(this).data('question-id');
+                const question = data.inventoryTypes.find(t => t.id === inventoryId)?.questions.find(q => q.id === questionId);
+                if (question) { question.text = $(this).val(); saveData(); }
+            });
+            $(document).on('click', '.delete-question-btn', function() {
+                const inventoryId = $('#add-new-question-btn').data('inventory-id');
+                const questionIdToDelete = $(this).data('question-id');
+                const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+                if (inventoryType) {
+                    inventoryType.questions = inventoryType.questions.filter(q => q.id !== questionIdToDelete);
+                    saveData();
+                    renderQuestionsEditor(inventoryId);
+                }
+            });
+            
+            // Search
+            $('#search-btn').on('click', function() {
+                const query = $('#search-input').val().trim().toLowerCase();
+                const resultsContainer = $('#search-results').empty();
+                if (!query) return;
+                let found = false;
+                Object.entries(data.inventoryEntries).forEach(([date, entries]) => {
+                    Object.entries(entries).forEach(([inventoryId, entry]) => {
+                        const inventoryType = data.inventoryTypes.find(t => t.id === inventoryId);
+                        if (!inventoryType) return;
+                        let content = (entry.text || '') + ' ' + Object.values(entry.answers || {}).join(' ');
+                        if (content.toLowerCase().includes(query)) {
+                            found = true;
+                            let resultHtml = `<div class="card mb-3"><div class="card-body"><h5 class="card-title">${inventoryType.name} - ${date}</h5>`;
+                            if (entry.text) resultHtml += `<p class="card-text">${entry.text.replace(new RegExp(query, 'gi'), (match) => `<mark>${match}</mark>`)}</p>`;
+                            if (entry.answers) {
+                                inventoryType.questions.forEach(q => {
+                                    if (entry.answers[q.id]?.toLowerCase().includes(query)) {
+                                        resultHtml += `<p class="card-text"><strong>${q.text}:</strong> ${entry.answers[q.id].replace(new RegExp(query, 'gi'), (match) => `<mark>${match}</mark>`)}</p>`;
+                                    }
+                                });
+                            }
+                            resultHtml += `</div></div>`;
+                            resultsContainer.append(resultHtml);
+                        }
+                    });
+                });
+                if (!found) resultsContainer.html('<p class="text-muted">لم يتم العثور على نتائج.</p>');
+            });
+
+            // Emergency Modal Population
+            $('#emergencyModal').on('show.bs.modal', function() {
+                const emergency = data.settings.emergency;
+                $('#emergency-content-prayer').html(`<p class="lead text-center fst-italic">"${emergency.prayer}"</p>`);
+                
+                const contactsDiv = $('#emergency-content-contacts').empty().append('<h6 class="fw-bold">جهات اتصال للدعم:</h6>');
+                const contactsList = $('<ul class="list-group list-group-flush"></ul>');
+                emergency.contacts.forEach(c => {
+                    // تنظيف رقم الهاتف من أي رموز غير رقمية للواتساب
+                    const whatsappNumber = c.number.replace(/[^0-9]/g, '');
+                    contactsList.append(`
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${c.name}
+                            <div class="btn-group" role="group">
+                                <a href="https://wa.me/${whatsappNumber}" target="_blank" class="btn btn-sm btn-success me-2">
+                                    <i class="bi bi-whatsapp me-1"></i>واتساب
+                                </a>
+                                <a href="tel:${c.number}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-telephone-fill me-1"></i>اتصال
+                                </a>
+                            </div>
+                        </li>
+                    `);
+                });
+                contactsDiv.append(contactsList);
+                
+                const meetingsDiv = $('#emergency-content-meetings').empty().append('<h6 class="fw-bold">روابط اجتماعات:</h6>');
+                const meetingsList = $('<div class="d-grid gap-2"></div>');
+                emergency.meetings.forEach(m => meetingsList.append(`<a href="${m.url}" target="_blank" class="btn btn-primary"><i class="bi bi-calendar-event me-1"></i> ${m.name}</a>`));
+                meetingsDiv.append(meetingsList);
+            });
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function applyTheme(theme) {
+            $('body').removeClass('light-theme dark-theme').addClass(theme + '-theme');
+        }
+
+        function applyFontSizes(settings) {
+            $('body').css('font-size', settings.general + 'px');
+            $('#daily-meditation').css('font-size', settings.meditation + 'rem');
+        }
+
+        // --- START THE APP ---
+        initializeApp();
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    });
+    </script>
+</body>
+</html>

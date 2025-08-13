@@ -1,0 +1,21 @@
+{
+  "name": "دفتر التعافي",
+  "short_name": "تعافي",
+  "start_url": "recoveryApp1.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#212529",
+  "description": "تطبيق للمساعدة على التعافي من الإدمان.",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
